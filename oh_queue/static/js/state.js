@@ -77,6 +77,9 @@ type State = {
   filter: Filter,
   /* Selected queue tab. */
   queueTabIndex: number,
+  /* Array of average waittimes corresponding to each ticket */
+  waitTimes = Array<number>,
+  stddev = Array<number>,
   /* Flashed messages. */
   messages: Array<Message>,
   nextMessageID: number,
@@ -97,6 +100,8 @@ let initialState: State = {
     question: null,
   },
   queueTabIndex: 0,
+  waitTimes: [],
+  stddev: [],
   messages: [],
   nextMessageID: 1,
 }
@@ -166,6 +171,29 @@ function ticketPosition(state: State, ticket: Ticket): ?string {
   }
 }
 
+//Added Code
+function ticketPositionIndex(state: State, ticket: Ticket): ?number {
+  let index = getTickets(state, 'pending').findIndex(pendingTicket =>
+    pendingTicket.id === ticket.id
+  );
+  if (index != -1) {
+    return index;
+  }
+}
+
+function getAvgWaitTime(state: State, num: number): ?number {
+  if (state.waitTimes.length != 0) {
+    return state.waitTimes[number];
+  }
+}
+
+function getStdDev(state: State, num: number): ?number {
+  if (state.waitTimes.length != 0) {
+    return state.stddev[number];
+  }
+}
+
+
 function isStaff(state: State): boolean {
   return state.currentUser != null && state.currentUser.isStaff;
 }
@@ -206,8 +234,7 @@ function receiveTicket(state: State, id: number, ticket: ?Ticket) {
   state.loadingTickets.delete(id);
 }
 
-/* Return an array of pending tickets, sorted by queue time.
- */
+/* Return an array of pending tickets, sorted by queue time. */
 function getTickets(state: State, status: string): Array<Ticket> {
   return Array.from(state.tickets.values()).filter(
     (ticket) => ticket.status === status
