@@ -10,7 +10,7 @@ from flask_login import current_user
 from flask_socketio import emit
 
 from oh_queue import app, db, socketio, waitingtime
-from waitingtime import *
+from oh_queue.waitingtime import *
 from oh_queue.models import Assignment, ConfigEntry, Location, Ticket, TicketEvent, TicketEventType, TicketStatus
 
 def user_json(user):

@@ -7,6 +7,7 @@ import math
 import operator
 import os
 import re
+import numpy
 
 from collections import namedtuple
 from datetime import datetime, timedelta, tzinfo
