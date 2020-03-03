@@ -506,8 +506,8 @@ def avgWaitTimeList(*args):
 					predictor.load(make_csv_reader(infile))
 					nloaded += 1
 		tend = default_timer()
-		if nloaded > 0:
-			# sys.stderr.write("Loading data took %.2f seconds\n" % (tend - tstart,))
+		# if nloaded > 0:
+		# 	# sys.stderr.write("Loading data took %.2f seconds\n" % (tend - tstart,))
 		waiting_times = predictor.compute_wait_times()
 		wait_time_dist = predictor.compute_wait_time_distribution(waiting_times)
 	# sys.stdout.write("Resolution (bin size): %s second(s)\n" % (bin_size,))

@@ -5,12 +5,12 @@ import pytz
 import random
 import time
 
-from waitingtime import *
 from flask import render_template, url_for
 from flask_login import current_user
 from flask_socketio import emit
 
-from oh_queue import app, db, socketio
+from oh_queue import app, db, socketio, waitingtime
+from waitingtime import *
 from oh_queue.models import Assignment, ConfigEntry, Location, Ticket, TicketEvent, TicketEventType, TicketStatus
 
 def user_json(user):
