@@ -91,6 +91,7 @@ def emit_state(attrs, broadcast=False):
     if 'waitTimes' in attrs and 'stddev' in attrs and 'tickets' in attrs:
         pendingTickets = Ticket.query.filter(Ticket.status.in_([TicketStatus.pending])).all()
         state['waitTimes'], state['stddev'] = avgWaitTimeList("query_result_ticket_event.csv", len(pendingTickets)+1, len(user_presence['staff']))
+        print(state['waitTimes'])
     if 'assignments' in attrs:
         assignments = Assignment.query.all()
         state['assignments'] = [assignment_json(assignment) for assignment in assignments]

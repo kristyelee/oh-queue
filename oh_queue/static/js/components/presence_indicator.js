@@ -28,6 +28,7 @@ let PresenceIndicator = ({state}) => {
 
   // Formatting
   var waitColor = "#646468"
+  var timeRange = 0
 
   if (myTicket == undefined || myTicket.status != "pending") {
     //Calculate a generalized waittime, using the # people on queue + 1th position
@@ -109,7 +110,7 @@ let PresenceIndicator = ({state}) => {
 
   }
 
-  // app.refresh();
+  app.refresh();
 
   var welcomeMessage = state.config.welcome
 
@@ -134,4 +135,3 @@ let PresenceIndicator = ({state}) => {
     </div>
   );
 }
-
