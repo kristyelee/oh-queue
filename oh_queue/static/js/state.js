@@ -78,8 +78,8 @@ type State = {
   /* Selected queue tab. */
   queueTabIndex: number,
   /* Array of average waittimes corresponding to each ticket */
-  waitTimes = Array<number>,
-  stddev = Array<number>,
+  waitTimes: Array<number>,
+  stddev: Array<number>,
   /* Flashed messages. */
   messages: Array<Message>,
   nextMessageID: number,
