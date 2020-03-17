@@ -521,40 +521,40 @@ def avgWaitTimeList(*args):
 		# if logging: sys.stdout.write("%s\n" % ("\t".join(map(str, [weight, wait_itimes, ta_start_itimes])),))
 	tend = default_timer()
 	# if tend - tstart >= 0.05: sys.stderr.write("Calculating queue wait times took %.2f seconds\n" % (tend - tstart,))
-	sys.stdout.write("Wait times <= [%s] min(s) with %.0f%% probability for %d instructors starting at T = %s min(s)\n" % (
-		", ".join(map(
-			lambda t: "%.2g" % (t / 60.0,),
-			map(
-				lambda queue_k_wait_times: sum(map(
-					lambda info: info[0] * bin_size * numpy.searchsorted(numpy.subtract(1, info[1].cdf_complement_range(0)), percentile, 'left'),
-					queue_k_wait_times)),
-				queue_wait_itimes))),
-		percentile * 100,
-		len(instructor_start_times),
-		list(map(lambda t: t / 60.0, instructor_start_times))
-	))
-	smoothing_window = numpy.median(waiting_times) / 5
+	# sys.stdout.write("Wait times <= [%s] min(s) with %.0f%% probability for %d instructors starting at T = %s min(s)\n" % (
+	# 	", ".join(map(
+	# 		lambda t: "%.2g" % (t / 60.0,),
+	# 		map(
+	# 			lambda queue_k_wait_times: sum(map(
+	# 				lambda info: info[0] * bin_size * numpy.searchsorted(numpy.subtract(1, info[1].cdf_complement_range(0)), percentile, 'left'),
+	# 				queue_k_wait_times)),
+	# 			queue_wait_itimes))),
+	# 	percentile * 100,
+	# 	len(instructor_start_times),
+	# 	list(map(lambda t: t / 60.0, instructor_start_times))
+	# ))
+	# smoothing_window = numpy.median(waiting_times) / 5
 	# sys.stdout.write("Plotting with a smoothing window of %s; please wait as smoothing may be slow...\n" % (smoothing_window,))
 	lw = 96.0 / 120
 	usetex = False
 	(rows, cols) = (2, 1)
-	import matplotlib, matplotlib.pyplot
-	matplotlib.rc('text', usetex=usetex)
-	matplotlib.rc('font', family='serif', serif=['cmr10' if usetex else 'Latin Modern Roman'], size=11)
-	pyplot = matplotlib.pyplot
-	from matplotlib import pyplot
-	fig = pyplot.figure(2, (9.0 * cols, 3.5 * rows), 120, None, None, False) or matplotlib.figure.Figure()
+	# import matplotlib, matplotlib.pyplot
+	# matplotlib.rc('text', usetex=usetex)
+	# matplotlib.rc('font', family='serif', serif=['cmr10' if usetex else 'Latin Modern Roman'], size=11)
+	# pyplot = matplotlib.pyplot
+	# from matplotlib import pyplot
+	# fig = pyplot.figure(2, (9.0 * cols, 3.5 * rows), 120, None, None, False) or matplotlib.figure.Figure()
 	xmax = None
-	if True:
-		xcutoff = 60 * 60
-		import scipy.stats
-		dist = scipy.stats.gengamma
-		x = numpy.arange(len(wait_time_dist))[:xcutoff]
-		x_displayed = x / 60.0
-		xmin = 0.0
-		y0 = dist.pdf(x, *dist.fit(waiting_times[waiting_times <= xcutoff], floc=xmin))
-		y1 = scipy.stats.gaussian_kde(waiting_times, smoothing_window / float(len(x)))(x); y1 /= numpy.sum(y1)
-		y2 = wait_time_dist[:xcutoff]; y2 = y2 / numpy.sum(y2)
+	# if True:
+	# 	xcutoff = 60 * 60
+	# 	import scipy.stats
+	# 	dist = scipy.stats.gengamma
+	# 	x = numpy.arange(len(wait_time_dist))[:xcutoff]
+	# 	x_displayed = x / 60.0
+	# 	xmin = 0.0
+	# 	y0 = dist.pdf(x, *dist.fit(waiting_times[waiting_times <= xcutoff], floc=xmin))
+	# 	y1 = scipy.stats.gaussian_kde(waiting_times, smoothing_window / float(len(x)))(x); y1 /= numpy.sum(y1)
+	# 	y2 = wait_time_dist[:xcutoff]; y2 = y2 / numpy.sum(y2)
 		# axes = fig.add_subplot(rows, cols, 1) or matplotlib.axes.Axes()
 		# artists_and_legends = []
 		# axes.set_title("Waiting time of a single person (minutes)")
@@ -569,8 +569,8 @@ def avgWaitTimeList(*args):
 		# axes.get_xaxis().set_major_locator(matplotlib.ticker.MultipleLocator(5))
 		# axes.get_xaxis().set_minor_locator(matplotlib.ticker.MultipleLocator(1))
 	if True:
-		axes = fig.add_subplot(rows, cols, 2) or matplotlib.axes.Axes()
-		axes.set_title("Waiting times of the people waiting on the queue (minutes)")
+		# axes = fig.add_subplot(rows, cols, 2) or matplotlib.axes.Axes()
+		# axes.set_title("Waiting times of the people waiting on the queue (minutes)")
 		maxend = max(map(lambda queue_k_wait_itimes: max(map(lambda info: info[1].end, queue_k_wait_itimes)), queue_wait_itimes))
 		artists_and_legends = []
 		avgTimeList, stdDevList = [], []
@@ -585,7 +585,7 @@ def avgWaitTimeList(*args):
 			x = numpy.linspace(ibegin * bin_size, iend * bin_size, len(dist_to_plot), False)
 			x_displayed = x / 60
 			# artists_and_legends.append((axes.fill_between(x_displayed, dist_to_plot, lw=lw), "Waiting time of person #%s on queue" % (k + 1,)))
-			axes.axvline(x=numpy.average(x_displayed, None, dist_to_plot / dist_to_plot.sum()), lw=lw, color='black')
+			# axes.axvline(x=numpy.average(x_displayed, None, dist_to_plot / dist_to_plot.sum()), lw=lw, color='black')
 			avgTimeList.append(numpy.average(x_displayed, None, dist_to_plot / dist_to_plot.sum()))
 			stdDevList.append(numpy.std(x_displayed, None))
 
