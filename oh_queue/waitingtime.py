@@ -555,8 +555,8 @@ def avgWaitTimeList(*args):
 		y0 = dist.pdf(x, *dist.fit(waiting_times[waiting_times <= xcutoff], floc=xmin))
 		y1 = scipy.stats.gaussian_kde(waiting_times, smoothing_window / float(len(x)))(x); y1 /= numpy.sum(y1)
 		y2 = wait_time_dist[:xcutoff]; y2 = y2 / numpy.sum(y2)
-		axes = fig.add_subplot(rows, cols, 1) or matplotlib.axes.Axes()
-		artists_and_legends = []
+		# axes = fig.add_subplot(rows, cols, 1) or matplotlib.axes.Axes()
+		# artists_and_legends = []
 		# axes.set_title("Waiting time of a single person (minutes)")
 		# # axes.grid(True, which='major')
 		# artists_and_legends.append((axes.plot(x_displayed, y0, lw=lw, color='black')[0], "Estimated %s distribution (ideal)" % (dist.name,)))
@@ -573,7 +573,7 @@ def avgWaitTimeList(*args):
 		axes.set_title("Waiting times of the people waiting on the queue (minutes)")
 		maxend = max(map(lambda queue_k_wait_itimes: max(map(lambda info: info[1].end, queue_k_wait_itimes)), queue_wait_itimes))
 		artists_and_legends = []
-		avgTimeList, stdDevList = []
+		avgTimeList, stdDevList = [], []
 		for k, queue_k_wait_itimes in list(enumerate(queue_wait_itimes[len(instructor_start_times):]))[::-1]:
 			dist = numpy.sum(list(map(lambda info: info[0] * info[1].pdf_range(0, maxend), queue_k_wait_itimes)), 0)
 			cumdist = numpy.cumsum(dist)

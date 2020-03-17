@@ -30,11 +30,15 @@ let PresenceIndicator = ({state}) => {
   var waitColor = "#646468"
   var timeRange = 0
 
+  if (numStaffOnline == 0) {
+    var timeRange = "??"
+  }
+
   if (myTicket == undefined || myTicket.status != "pending") {
     //Calculate a generalized waittime, using the # people on queue + 1th position
 
     // PARAM 1: expected waittime time
-    var avgHelpTime = getAvgWaitTime(state, state.waitTimes.length - 1)
+    var avgWaitTime = getAvgWaitTime(state, state.waitTimes.length - 1)
 
     // catch if there actually are no assistants available
     if (numStaffOnline == 0) {
@@ -47,15 +51,15 @@ let PresenceIndicator = ({state}) => {
       var bound = 1.15 * stdDev/Math.sqrt(numStaffOnline)
 
       // interval bounds
-      var estWaitTimeMin = Math.max(0, Math.floor(avgHelpTime - bound))
-      var estWaitTimeMax = Math.ceil(avgHelpTime + bound)
+      var estWaitTimeMin = Math.max(0, Math.floor(avgWaitTime - bound))
+      var estWaitTimeMax = Math.ceil(avgWaitTime + bound)
 
       // colors for the time
-      if (expectedWaitTotal <= 5) {
+      if (avgWaitTime <= 5) {
         waitColor ="#009900"
-      } else if (expectedWaitTotal < 10) {
+      } else if (avgWaitTime < 10) {
         waitColor ="#739900"
-      } else if (expectedWaitTotal < 25) {
+      } else if (avgWaitTime < 25) {
         waitColor ="#cc5200"
       } else {
         waitColor ="#ff0000"
@@ -70,7 +74,7 @@ let PresenceIndicator = ({state}) => {
   } else {
 
     //Get queue position of ticket
-    var queue_position = ticketPositionIndex(state, ticket)
+    var queue_position = ticketPositionIndex(state, myTicket)
 
     // PARAM 1: expected waittime
     var avgWaitTime = getAvgWaitTime(state, queue_position)
@@ -91,11 +95,11 @@ let PresenceIndicator = ({state}) => {
       var estWaitTimeMax = Math.ceil(avgWaitTime + bound)
 
       // colors for the time
-      if (expectedWaitTotal <= 5) {
+      if (avgWaitTime <= 5) {
         waitColor ="#009900"
-      } else if (expectedWaitTotal < 10) {
+      } else if (avgWaitTime < 10) {
         waitColor ="#739900"
-      } else if (expectedWaitTotal < 25) {
+      } else if (avgWaitTime < 25) {
         waitColor ="#cc5200"
       } else {
         waitColor ="#ff0000"
@@ -110,7 +114,6 @@ let PresenceIndicator = ({state}) => {
 
   }
 
-  app.refresh();
 
   var welcomeMessage = state.config.welcome
 
