@@ -90,7 +90,7 @@ def emit_state(attrs, broadcast=False):
         state['tickets'] = [ticket_json(ticket) for ticket in tickets]
     if 'waitTimes' in attrs and 'stddev' in attrs and 'tickets' in attrs:
         pendingTickets = Ticket.query.filter(Ticket.status.in_([TicketStatus.pending])).all()
-        state['waitTimes'], state['stddev'] = avgWaitTimeList("query_result_ticket_event.csv", len(pendingTickets)+1, len(user_presence['staff']))
+        state['waitTimes'], state['stddev'] = avgWaitTimeList("./oh_queue/query_result_ticket_event.csv", len(pendingTickets)+1, len(user_presence['staff']))
     if 'assignments' in attrs:
         assignments = Assignment.query.all()
         state['assignments'] = [assignment_json(assignment) for assignment in assignments]

@@ -487,7 +487,7 @@ def sparse_to_dense_pmf(weights, normalize=False):
 
 
 def avgWaitTimeList(*args):
-	instructor_start_times = [0] * int(args[2])
+	instructor_start_times = [0] * (int(args[2]))
 	queue_depth = len(instructor_start_times) + int(args[1])
 	percentile = 0.50
 	bin_size = 1

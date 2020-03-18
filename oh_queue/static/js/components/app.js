@@ -61,6 +61,17 @@ class App extends React.Component {
         setTicket(this.state, ticket);
       }
     }
+    if (Array.isArray(data.stddev)) {
+      this.state.stddev = data.stddev
+    }
+    if (Array.isArray(data.waitTimes)) {
+      this.state.stddev = data.waitTimes
+    }
+    if (Array.isArray(data.tickets)) {
+      for (var ticket of data.tickets) {
+        setTicket(this.state, ticket);
+      }
+    }
     if (data.hasOwnProperty('config')) {
       this.state.config = data.config;
     }
