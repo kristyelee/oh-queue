@@ -65,7 +65,7 @@ class App extends React.Component {
       this.state.stddev = data.stddev
     }
     if (Array.isArray(data.waitTimes)) {
-      this.state.stddev = data.waitTimes
+      this.state.waitTimes = data.waitTimes
     }
     if (Array.isArray(data.tickets)) {
       for (var ticket of data.tickets) {
