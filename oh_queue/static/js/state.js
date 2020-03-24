@@ -183,13 +183,13 @@ function ticketPositionIndex(state: State, ticket: Ticket): ?number {
 
 function getAvgWaitTime(state: State, num: number): ?number {
   if (state.waitTimes.length != 0) {
-    return state.waitTimes[number];
+    return state.waitTimes[num];
   }
 }
 
 function getStdDev(state: State, num: number): ?number {
   if (state.waitTimes.length != 0) {
-    return state.stddev[number];
+    return state.stddev[num];
   }
 }
 
