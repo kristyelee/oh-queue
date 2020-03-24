@@ -2,6 +2,7 @@ let Queue = ({state}) => {
   let staff = isStaff(state);
   let myTicket = getMyTicket(state);
   let showJumbotron = !staff && !myTicket;
+  const myAssignedTickets = getTickets(state, 'assigned').filter(ticket => isTicketHelper(state, ticket));
   let pendingTickets = [].concat(...getTickets(state, "rerequested").filter(ticket => isTicketHelper(state, ticket) || !ticket.helper))
                          .concat(...getTickets(state, 'pending'))
                          .concat(...getTickets(state, "juggled").filter(ticket => isTicketHelper(state, ticket) || !ticket.helper));
@@ -25,6 +26,9 @@ let Queue = ({state}) => {
       <div className={containerClass}>
         {!showJumbotron && <Messages messages={state.messages}/>}
         <PresenceIndicator state={state} />
+        <MyAppointments state={state} />
+        <MyAssignedTickets state={state} tickets={myAssignedTickets} />
+        {!!myAssignedTickets.length && <hr />}
         {staff && <FilterControls state={state} filter={state.filter} />}
         {staff && <hr />}
         <Tabs selectedIndex={state.queueTabIndex} onSelect={selectTab}>
@@ -32,7 +36,7 @@ let Queue = ({state}) => {
             <TicketList tickets={pendingTickets} status='pending' state={state} />
           </Tab>
           {staff &&
-          <Tab label={`On Hold (${heldTickets.length})`} shouldHighlight={shouldHighlightAssigned}>
+          <Tab label={`On Hold (${heldTickets.length})`}>
             <TicketList tickets={heldTickets} status='held' state={state} />
           </Tab>}
           <Tab label={`Assigned (${assignedTickets.length})`} shouldHighlight={shouldHighlightAssigned}>
@@ -47,7 +51,7 @@ let Queue = ({state}) => {
 let TicketList = ({tickets, state, status}) => {
   let filteredTickets = applyFilter(state.filter, tickets);
   let items = filteredTickets.map((ticket) =>
-    <Ticket key={ticket.id} state={state} ticket={ticket}/>
+    <Ticket key={ticket.id} state={state} ticket={ticket} />
   );
   var body;
   if (tickets.length === 0) {

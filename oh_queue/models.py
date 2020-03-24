@@ -1,4 +1,3 @@
-import datetime
 import enum
 
 from flask_login import UserMixin
@@ -35,9 +34,14 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(255), nullable=False)
     is_staff = db.Column(db.Boolean, default=False)
 
+    course = db.Column(db.String(255), nullable=False, index=True)
+
+    call_url = db.Column(db.String(255))
+    doc_url = db.Column(db.String(255))
+
     @property
     def short_name(self):
-        first_name = self.name.split()[0]
+        first_name = self.name.split()[0] if self.name.split() else ""
         if '@' in first_name:
             return first_name.rsplit('@')[0]
         return first_name
@@ -45,25 +49,33 @@ class User(db.Model, UserMixin):
 class ConfigEntry(db.Model):
     """Represents persistent server-side configuration entries"""
     __tablename__ = 'config_entries'
-    key = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(255), nullable=False)
     value = db.Column(db.Text(), nullable=False)
     public = db.Column(db.Boolean, default=False)
+
+    course = db.Column(db.String(255), nullable=False, index=True)
 
 class Assignment(db.Model):
     """Represents a ticket's assignment."""
     __tablename__ = 'assignment'
     id = db.Column(db.Integer, primary_key=True)
     created = db.Column(db.DateTime, default=db.func.now())
-    name = db.Column(db.String(255), nullable=False, unique=True)
+    name = db.Column(db.String(255), nullable=False)
     visible = db.Column(db.Boolean, default=False)
+
+    course = db.Column(db.String(255), nullable=False, index=True)
 
 class Location(db.Model):
     """Represents a ticket's location."""
     __tablename__ = 'location'
     id = db.Column(db.Integer, primary_key=True)
     created = db.Column(db.DateTime, default=db.func.now())
-    name = db.Column(db.String(255), nullable=False, unique=True)
+    name = db.Column(db.String(255), nullable=False)
     visible = db.Column(db.Boolean, default=False)
+
+    course = db.Column(db.String(255), nullable=False, index=True)
+
 
 TicketStatus = enum.Enum('TicketStatus', 'pending assigned resolved deleted juggled rerequested')
 
@@ -97,11 +109,18 @@ class Ticket(db.Model):
     assignment = db.relationship(Assignment, foreign_keys=[assignment_id])
     location = db.relationship(Location, foreign_keys=[location_id])
 
+    course = db.Column(db.String(255), nullable=False, index=True)
+
+    call_url = db.Column(db.String(255))
+    doc_url = db.Column(db.String(255))
+
     @classmethod
     def for_user(cls, user):
         if user and user.is_authenticated:
+            from oh_queue.course_config import get_course
             return cls.query.filter(
               cls.user_id == user.id,
+              cls.course == get_course(),
               cls.status.in_([TicketStatus.pending, TicketStatus.assigned]),
             ).one_or_none()
 
@@ -130,5 +149,55 @@ class TicketEvent(db.Model):
     ticket_id = db.Column(db.ForeignKey('ticket.id'), nullable=False)
     user_id = db.Column(db.ForeignKey('user.id'), nullable=False)
 
+    course = db.Column(db.String(255), nullable=False, index=True)
+
     ticket = db.relationship(Ticket)
     user = db.relationship(User)
+
+
+AppointmentStatus = enum.Enum('AppointmentStatus', 'pending active resolved hidden')
+
+
+class Appointment(db.Model):
+    """Represents an appointment block."""
+    __tablename__ = "appointment"
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime, index=True, nullable=False)
+    duration = db.Column(db.Interval, nullable=False)
+    capacity = db.Column(db.Integer, nullable=False)
+
+    location_id = db.Column(db.ForeignKey('location.id'), nullable=False, index=True)
+    location = db.relationship(Location, foreign_keys=[location_id])
+
+    helper_id = db.Column(db.ForeignKey('user.id'), index=True)
+    helper = db.relationship(User, foreign_keys=[helper_id])
+
+    signups = db.relationship("AppointmentSignup", back_populates="appointment")
+
+    status = db.Column(EnumType(AppointmentStatus), nullable=False, index=True)
+
+    course = db.Column(db.String(255), nullable=False, index=True)
+
+
+AttendanceStatus = enum.Enum('AttendanceStatus', 'unknown present excused absent')
+
+
+class AppointmentSignup(db.Model):
+    __tablename__ = "appointment_signup"
+    id = db.Column(db.Integer, primary_key=True)
+
+    appointment_id = db.Column(db.ForeignKey('appointment.id'), nullable=False, index=True)
+    appointment = db.relationship("Appointment", back_populates="signups")
+
+    user_id = db.Column(db.ForeignKey('user.id'), nullable=False, index=True)
+    user = db.relationship(User, foreign_keys=[user_id])
+
+    assignment_id = db.Column(db.ForeignKey('assignment.id'), index=True)
+    assignment = db.relationship(Assignment, foreign_keys=[assignment_id])
+
+    question = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+
+    attendance_status = db.Column(EnumType(AttendanceStatus), nullable=False, default=AttendanceStatus.unknown)
+
+    course = db.Column(db.String(255), nullable=False, index=True)

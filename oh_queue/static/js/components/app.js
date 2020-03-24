@@ -27,11 +27,18 @@ class App extends React.Component {
       this.refreshTickets();
     });
     socket.on('disconnect', () => this.setOffline(true));
-    socket.on('state', (data) => this.updateState(data));
+    socket.on('state', (data, callback) => {
+        this.updateState(data);
+        if (callback) {
+            callback();
+        }
+    });
     socket.on('event', (data) => this.updateTicket(data));
     socket.on('presence', (data) => this.updatePresence(data));
+    socket.on('appointment_event', (data) => this.updateAppointment(data));
 
     this.loadTicket = this.loadTicket.bind(this);
+    this.loadAppointment = this.loadAppointment.bind(this);
   }
 
   refresh() {
@@ -74,9 +81,15 @@ class App extends React.Component {
     }
     if (data.hasOwnProperty('config')) {
       this.state.config = data.config;
+      for (const key of ["daily_appointment_limit", "weekly_appointment_limit", "simul_appointment_limit"]) {
+          this.state.config[key] = JSON.parse(this.state.config[key]);
+      }
     }
     if (data.hasOwnProperty('current_user')) {
       this.state.currentUser = data.current_user;
+    }
+    if (data.hasOwnProperty('appointments')) {
+        this.state.appointments = Array.from(data.appointments).sort(appointmentTimeComparator);
     }
     this.state.loaded = true;
     this.refresh();
@@ -99,6 +112,13 @@ class App extends React.Component {
 
   shouldNotify(ticket, type) {
     return (isStaff(this.state) && type === 'create');
+  }
+
+  updateAppointment({ appointment, type }) {
+      setAppointment(this.state, appointment, () => {
+          this.router.history.push("/appointments/" + appointment.id);
+      });
+      this.refresh();
   }
 
   updateTicket(data) {
@@ -137,6 +157,15 @@ class App extends React.Component {
       receiveTicket(this.state, id, ticket);
       this.refresh();
     });
+  }
+
+  loadAppointment(id) {
+    if (isStaff(this.state)) {
+        this.socket.emit('load_appointment', id, (appointment) => {
+            setAppointment(this.state, appointment);
+            this.refresh();
+        });
+    }
   }
 
   toggleFilter() {
@@ -198,10 +227,15 @@ class App extends React.Component {
         <div>
           <Switch>
             <Route exact path="/" render={(props) => (<Home state={state} {...props} />)} />
+            <Route exact path="/appointments" render={(props) => (<Appointments state={state} {...props} />)} />
+            <Route exact path="/online_setup" render={(props) => (<StaffOnlineSetup state={state} {...props} />)} />
             <Route path="/admin" render={(props) => (<AdminLayout state={state} {...props} />)} />
+            <Route path="/activity_log" render={(props) => (<ActivityLogLayout state={state} {...props} />)} />
             <Route path="/error" render={(props) => (<ErrorView state={state} {...props} />)} />
             <Route path="/presence" render={(props) => (<PresenceIndicator state={state} {...props} />)} />
-            <Route path="/tickets/:id" render={(props) => (<TicketLayout state={state} loadTicket={this.loadTicket} {...props} />)} />
+            <Route path="/tickets/:id" render={(props) => (<TicketLayout state={state} socket={this.socket} loadTicket={this.loadTicket} {...props} />)} />
+            <Route path="/appointments/:id" render={(props) => (<AppointmentLayout state={state} socket={this.socket} loadAppointment={this.loadAppointment} {...props} />)} />
+            <Route path="/user/:id" render={(props) => (<UserLayout state={state} {...props} />)} />
             <Route render={(props) => (<ErrorView state={state} {...props} message="Page Not Found" />)} />
           </Switch>
         </div>
