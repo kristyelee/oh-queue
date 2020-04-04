@@ -7,7 +7,6 @@ import math
 import operator
 import os
 import re
-import numpy
 
 from collections import namedtuple
 from datetime import datetime, timedelta, tzinfo
@@ -442,8 +441,10 @@ class WaitTimePredictor(object):
 		def helper(*args):
 			(nq, weight, ta_start_times) = args
 			result = memo.get(args) if memo is not None else None
+			#print(result)
 			if result is None:
 				# Compute the wait time for the current state
+
 				(tminbegin, time_help_probs, instructor_help_probs, tmaxend) = self._calculate_help_time_probabilities(ta_start_times)
 				assert numpy.allclose(time_help_probs.sum(), 1, atol=1E-4), "probabilities don't add up to 1; they add up to " + repr(time_help_probs.sum().tolist())
 				wait_itimes = Distribution(time_help_probs, tminbegin)
@@ -472,6 +473,7 @@ class WaitTimePredictor(object):
 				if memo is not None:
 					memo[args] = tuple(result)
 			return result
+
 		return helper(0, 1.0, tuple(start_time_discretized_distributions))
 
 def sparse_to_dense_pmf(weights, normalize=False):
@@ -485,8 +487,8 @@ def sparse_to_dense_pmf(weights, normalize=False):
 		w /= numpy.sum(w)
 	return w
 
-
 def avgWaitTimeList(*args):
+	if (args[2] == 0) : return [],[]
 	instructor_start_times = [0] * (int(args[2]))
 	queue_depth = len(instructor_start_times) + int(args[1])
 	percentile = 0.50
@@ -512,7 +514,7 @@ def avgWaitTimeList(*args):
 		waiting_times = predictor.compute_wait_times()
 		wait_time_dist = predictor.compute_wait_time_distribution(waiting_times)
 	# sys.stdout.write("Resolution (bin size): %s second(s)\n" % (bin_size,))
-	if queue_depth <= len(instructor_start_times): sys.stderr.write("NOTE: Fewer people on queue than available instructors; everyone will be serviced immediately.\n")
+	# if queue_depth <= len(instructor_start_times): sys.stderr.write("NOTE: Fewer people on queue than available instructors; everyone will be serviced immediately.\n")
 	tstart = default_timer()
 	queue_wait_itimes = []
 	for (depth, weight, wait_itimes, ta_start_itimes) in predictor.get_wait_itimes(wait_time_dist, instructor_start_times, queue_depth):
@@ -533,7 +535,7 @@ def avgWaitTimeList(*args):
 	# 	len(instructor_start_times),
 	# 	list(map(lambda t: t / 60.0, instructor_start_times))
 	# ))
-	# smoothing_window = numpy.median(waiting_times) / 5
+	smoothing_window = numpy.median(waiting_times) / 5
 	# sys.stdout.write("Plotting with a smoothing window of %s; please wait as smoothing may be slow...\n" % (smoothing_window,))
 	lw = 96.0 / 120
 	usetex = False
@@ -597,4 +599,6 @@ def avgWaitTimeList(*args):
 	#fig.tight_layout()
 	#if False: fig.savefig('waiting-time.png', transparent=True)
 	#pyplot.show(fig)
+	avgTimeList.reverse()
+	stdDevList.reverse()
 	return avgTimeList, stdDevList

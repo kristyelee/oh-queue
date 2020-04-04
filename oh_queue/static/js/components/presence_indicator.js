@@ -40,7 +40,7 @@ let PresenceIndicator = ({state}) => {
     // PARAM 1: expected waittime time
     var avgWaitTime = getAvgWaitTime(state, state.waitTimes.length - 1)
 
-    // catch if there actually are no assistants available
+    // Catch if there actually are no assistants available
     if (numStaffOnline == 0) {
       var timeRange = "??"
     } else {
@@ -48,7 +48,7 @@ let PresenceIndicator = ({state}) => {
       var stdDev = getStdDev(state, state.waitTimes.length - 1)
 
       // PARAM 2: (75% conf interval by CLT, 1.15 is from zscore of Normal)
-      var bound = 1.15 * stdDev/Math.sqrt(numStaffOnline)
+      var bound = 1.15 * stdDev/Math.sqrt(availableAssistants)
 
       // interval bounds
       var estWaitTimeMin = Math.max(0, Math.floor(avgWaitTime - bound))
@@ -88,7 +88,7 @@ let PresenceIndicator = ({state}) => {
       var stdDev = getStdDev(state, queue_position)
 
       // PARAM 2: (75% conf interval by CLT, 1.15 is from zscore of Normal)
-      var bound = 1.15 * stdDev/Math.sqrt(numStaffOnline)
+      var bound = 1.15 * stdDev/Math.sqrt(availableAssistants)
 
       // interval bounds
       var estWaitTimeMin = Math.max(0, Math.floor(avgWaitTime - bound))

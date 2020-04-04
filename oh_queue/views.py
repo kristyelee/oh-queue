@@ -144,8 +144,18 @@ def emit_state(attrs, broadcast=False, callback=None):
             Ticket.course == get_course(),
         ).all()
         state['tickets'] = [ticket_json(ticket) for ticket in tickets]
+
         pendingTickets = Ticket.query.filter(Ticket.status.in_([TicketStatus.pending])).all()
-        state['waitTimes'], state['stddev'] = avgWaitTimeList("./oh_queue/query_result_ticket_event.csv", len(pendingTickets)+1, len(user_presence['staff']))
+
+        activeStaffList = list(user_presence[get_course()]['staff'])
+        for ticket in tickets:
+            if ticket not in pendingTickets:
+                ticketHelper = (ticket.helper.email, ticket.helper.name)
+                if ticketHelper in activeStaffList:
+                    activeStaffList.remove(ticketHelper)
+
+        state['waitTimes'], state['stddev'] = avgWaitTimeList("./oh_queue/query_result_ticket_event.csv", len(pendingTickets)+1, len(activeStaffList))
+
     if 'assignments' in attrs:
         assignments = Assignment.query.filter_by(course=get_course()).all()
         state['assignments'] = [assignment_json(assignment) for assignment in assignments]
